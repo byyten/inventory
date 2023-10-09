@@ -1,0 +1,22 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+table {
+  border: 1px solid darkgray;
+  margin: 0 2rem;
+}
+th, td { 
+  padding: 0.2rem 1rem;
+}
+th.category { width: 10rem }
+th.products { width: 10rem }
+th.instock { width: 10rem }
+td.right { text-align: right; width: 5rem; }
+td.title, td.brand { width: 10rem; }
+td.description { width: 20rem }

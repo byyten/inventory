@@ -1,0 +1,186 @@
+const Category = require("../models/category")  // Category = require("./models/category")
+const Product = require("../models/product")  // product = require("./models/product")
+
+const asyncHandler = require("express-async-handler")
+const { body, validator, validationResult } = require("express-validator")
+
+
+exports.get_categories_list = asyncHandler(async (req, res, next) => {
+    const categories = await Category.find().exec();
+    res.render('category_list', {
+        title: "Category List",
+        categories: categories
+    })
+})
+
+exports.get_category_create = asyncHandler(async (req, res, next) => {
+    const [ categories] = await Promise.all([
+        // Category.findById('11111111111111111111').populate().exec(),
+        Category.find().exec()
+    ])
+    res.render('category_form', {
+        title: "create category",
+        // category: category,
+        action: "create",
+        categories: JSON.parse(JSON.stringify(categories))
+    })
+
+})
+
+exports.post_category_create = [
+    // console.log("NOT YET IMPLEMENTED")
+    body("name", "Category must be at least 3 characters")
+    .trim()
+    .isLength({min:3})
+    .escape(),
+    
+    asyncHandler(async (req, res, next) => {
+        const errors = validationResult(req)
+        const categories = await Category.find().populate().exec();
+        if (categories.map(c=>c.name.toLowerCase()).includes(req.body.name.toLowerCase())) {
+            // already exists
+            const existing = await Category.findOne({ name: req.body.name}).collation({ locale: "en", strength: 2 }).exec()
+            if (existing) {
+                res.redirect(existing.url)
+            }
+        }
+        const category = new Category({ name: req.body.name })
+
+        if (!errors.isEmpty()) {
+            res.render("category_form", {
+                title: "Create Category",
+                action: "create",
+                category: category,
+                errors: errors.array()
+            })
+            return
+        } else {
+            await category.save()
+            console.log(category.url)
+            res.redirect(category.url)
+        }
+    })
+
+    // validate form, on ok create    
+]
+
+
+exports.get_category_read = asyncHandler(async (req, res, next) => {
+    const [category, categories] = await Promise.all([
+        Category.findById(req.params.id).populate().exec(),
+        Category.find().populate().exec()
+    ])
+
+    if (category === null) {
+        const err = new Error("Catagory not found")
+        err.status = 404
+        return next(err)
+    }
+
+    res.render('category_form', {
+        title: "create category",
+        action: "read",
+        category: category,
+        categories: categories
+    })
+    // console.log("NOT YET IMPLEMENTED")
+})
+
+exports.get_category_update = asyncHandler(async (req, res, next) => {
+    const category = await Category.findById(req.params.id).populate().exec();
+
+    if (category === null) {
+        const err = new Error("Catagory not found")
+        err.status = 404
+        return next(err)
+    }
+
+    const categories = await Category.find().populate().exec();
+
+    res.render('category_form', {
+        title: "modify category",
+        action: "update",
+        category: category,
+        categories: categories
+    })
+})
+exports.post_category_update = [
+    // validate form, on ok update
+    body("name", "Category must be at least 3 characters")
+    .trim()
+    .isLength({min:3})
+    .escape(),
+    
+    asyncHandler(async (req, res, next) => {
+        const errors = validationResult(req)
+        const categories = await Category.find().populate().exec();
+        if (categories.map(c=>c.name.toLowerCase()).includes(req.body.name.toLowerCase())) {
+            // already exists
+            const existing = await Category.findOne({ name: req.body.name}).collation({ locale: "en", strength: 2 }).exec()
+            if (existing) {
+                res.redirect(existing.url)
+            }
+        }
+        const category = new Category({ _id: req.params.id, name: req.body.name })
+        if (!errors.isEmpty()) {
+            res.render("category_form", {
+                title: "Create Category",
+                action: "update",
+                category: category,
+                errors: errors.array()
+            })
+            return
+        } else {
+            const categoryupdated = await Category.findByIdAndUpdate(req.params.id, category, {})
+            res.redirect(categoryupdated.url)
+        }
+    })
+]
+
+exports.get_category_delete = asyncHandler(async (req, res, next) => {
+    // const category = await Category.findById(req.params.id).populate().exec();
+    const [category, categories, category_products] = await Promise.all([
+        Category.findById(req.params.id).populate().exec(),
+        Category.find().populate().exec(),
+        Product.find({ category: req.params.id}).populate().exec()
+    ])
+
+    // const [category, category_products] = await Promise.all([
+    //     Category.findById(req.params.id).exec(),
+    //     Product.find({ category: req.params.id }).exec()
+    // ])
+
+    if (category === null) {
+        const err = new Error("Category not found")
+        err.status = 404
+        return next(err)
+    }
+
+    console.log(JSON.parse(JSON.stringify(category_products)))
+
+    res.render('category_form', {
+        title: "delete category",
+        action: "delete",
+        category: category,
+        categories: categories,
+        category_products: JSON.parse(JSON.stringify(category_products))
+    })    
+})
+
+exports.post_category_delete = asyncHandler(async (req, res, next) => {
+    await Category.findByIdAndRemove(req.params.id)
+    res.redirect("/inventory/categories")
+    // const [category, category_products] = await Promise.all([
+    //     category.findById(req.params.id).exec(),
+    //     product.find({ category: req.params.id }).exec()
+    // ])
+
+    // if (category_products.length > 0) {
+    //     res.render("category_form", {
+    //         title: "Delete category",
+    //         action: "delete",
+    //         category: category,
+    //         category_products: category_products 
+    //     })
+    // }
+})

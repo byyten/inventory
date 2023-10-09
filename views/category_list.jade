@@ -1,0 +1,10 @@
+extends layout 
+
+block content
+    h4 Category list 
+
+    dl
+        each category in categories 
+            dt 
+                a(href=category.url) #{category.name} 
+        

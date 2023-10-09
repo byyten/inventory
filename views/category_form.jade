@@ -1,0 +1,82 @@
+//- mixin htmlform 
+    
+
+
+extends layout 
+
+block content 
+
+    h1 #{(category ? category.name : "")}
+    h4 #{action === "read" ? "" : action} category
+
+    if action === "delete" 
+        //- action is delete
+        if category_products.length > 0
+            h6 Products in this category
+            p #[strong Delete the following products before attempting to delete this category]
+            
+            div(style='margin-left:20px;margin-top:20px')            
+                //- p #{JSON.stringify(category_products)}
+                //- p #{JSON.stringify(category)}
+                //- p #{JSON.stringify(categories)}
+                //- p #{action}
+                dl 
+                    each product in category_products   
+                        dt 
+                            a(href="/inventory/category/" + product._id) #{product.title}
+                        dd #{product.description} 
+            br
+            hr
+        
+        if category_products.length === 0 
+            p Do you really want to delete this category?
+
+            form(method="POST" action = "")
+                .form-group 
+                    input#categoryid.form-control(type='hidden',name='categoryid', required='true', value=(category === undefined ? '' : category._id ))
+                    label(for="name") Category: 
+                    input#name.form-control(type="text",name="name" value=(undefined===category ? "" : category.name) placeholder="product category ")
+                    //- br
+                    //- button.btn.btn-primary(type="submit") Submit 
+                    br
+                    if action !== "read"
+                        button.btn.btn-primary(type="submit") #{(action === "update" ? "Modify" : action === "create" ? "Create" : "Delete" )} 
+
+
+
+                    if categories
+                        select#categories.form-control.hid(name="categories", style="visibility:hidden")
+                            each category in categories 
+                                option(value=category.name) #{category.name}
+
+
+
+    else 
+        //- if action === "create" || action === "update" 
+        //- action is create or update
+
+        form(method="POST" action = "")
+            .form-group 
+                label(for="name") Category: 
+                input#name.form-control(type="text",name="name" value=(undefined===category ? "" : category.name) placeholder="product category ")
+                //- br
+                //- button.btn.btn-primary(type="submit") Submit 
+                br
+                if action !== "read"
+                    button.btn.btn-primary(type="submit") #{(action === "update" ? "Modify" : action === "create" ? "Create" : "Delete" )} 
+
+                if categories
+                    select#categories.form-control.hid(name="categories", style="visibility:hidden")
+                        each category in categories 
+                            option(value=category.name) #{category.name}
+        if errors 
+            ul 
+                for error in errors 
+                    li!= error.msg 
+        br
+        if category
+            hr
+            p 
+                a(href=category.url + "/update") Modify 
+            p 
+                a(href=category.url + "/delete") Delete  

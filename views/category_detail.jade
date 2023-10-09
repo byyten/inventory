@@ -1,0 +1,18 @@
+extends layout 
+
+block content 
+
+    h1 #{title}
+
+    form(method="" action = "")
+        .form-group 
+            input#categoryid.form-control(type='hidden',name='categoryid', required='true', value=category._id )
+
+            label(for="name") Category: 
+            input#name.form-control(type="text", name="name" value=category.name)
+    br
+    hr
+    p 
+        a(href=category.url + "/update") Modify 
+    p 
+        a(href=category.url + "/delete") Delete

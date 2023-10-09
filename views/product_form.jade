@@ -1,0 +1,62 @@
+extends layout 
+
+block content 
+
+    h4 #{title}
+
+    //- if action === "create" || action === "update"  || action === "read" 
+        //- is create
+    form(method="POST" action = "")
+        .form-group 
+            input#productid.form-control(type='hidden',name='productid', required='true', value=(product === undefined ? '' : product._id ) )
+
+            label(for="title") Title: 
+            input#title.form-control(type="text", name="title" value=(undefined===product ? "" : product.title) placeholder="product title ")
+
+            label(for="description") Description: 
+            input#description.form-control(name="description" value=(undefined===product ? "" : product.description) placeholder="product description ")
+
+            label(for="price") Price: 
+            input#price.form-control(type="text", name="price" value=(undefined===product ? "" : product.price)  placeholder="price")
+            
+            label(for="discountPercentage") Discount: 
+            input#discountPercentage.form-control(type="text", name="discountPercentage" value=(undefined===product ? "" : product.discountPercentage) placeholder="product discount %")
+
+            label(for="rating") Rating: 
+            input#rating.form-control(type="text", name="rating" value=(undefined===product ? "" : product.rating) placeholder="product rating ")
+
+            label(for="stock") # In Stock: 
+            input#stock.form-control(type="text",  name="stock" value=(undefined===product ? "" : product.stock)  placeholder="product stock ")
+
+            label(for="brand") brand: 
+            input#brand.form-control(type="text",  name="brand" value=(undefined===product ? "" : product.brand) placeholder="product brand ")
+
+            label(for="category") category: 
+            //- value=(undefined===product ? "" : product.category.name)
+            select#category.form-control(name="category"   placeholder="product category ")
+                each category in categories 
+                    option(value=category._id selected=(product ? category.name === product.category.name : false)) #{category.name}
+
+            label(for="thumbnail") thumbnail: 
+            input#thumbnail.form-control(type="text",  name="thumbnail" value=(undefined===product ? "" : product.thumbnail)  placeholder="product thumbnail ")
+
+            label(for="images") images: 
+            input#images.form-control(type="text", name="images" value=(undefined===product ? "" : product.images)  placeholder="product images ")
+
+            br
+            if action !== "read"
+                button.btn.btn-primary(type="submit") #{(action === "update" ? "Modify" : action === "create" ? "Create" : "Delete" )} 
+
+    if action !== "create"
+        br
+        hr
+        p 
+            a(href=product.url + "/update") Modify 
+        p 
+            a(href=product.url + "/delete") Delete
+
+    if errors 
+        ul 
+            for error in errors 
+                li!= error.msg 
+

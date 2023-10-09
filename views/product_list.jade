@@ -1,0 +1,30 @@
+extends layout 
+
+block content
+        h4 Product list 
+        p by category 
+        br
+        dl
+            each category in categories 
+                dt #{category.name} 
+                dd
+                    table
+                        tr 
+                            th title 
+                            th brand 
+                            th description 
+                            th rating 
+                            th discount 
+                            th price 
+                            th stock
+                        each product in products_by_category[category.name].products
+                                tr 
+                                    td.title 
+                                        a(href="/inventory/product/" + product._id) #{product.title}  
+                                    td.brand #{product.brand} 
+                                    td.description #{product.description} 
+                                    td.right #{product.rating} 
+                                    td.right #{product.discountPercentage} 
+                                    td.right #{product.price} 
+                                    td.right #{product.stock} 
+                        

@@ -1,0 +1,21 @@
+extends layout
+
+block content
+  //- include product_summary
+  p Products: #{product_count} in #{category_count} categories
+  p
+  table 
+      caption Product / Category summary
+      tbody
+      tr 
+          th.category Category 
+          th.products # Products
+          th.instock # in Stock 
+      tr 
+          each product in products_in_category
+            tr 
+              td #{product.category} 
+              td #{product.products}
+              td #{product.inStock}
+
+
