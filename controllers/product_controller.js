@@ -5,6 +5,8 @@ const asyncHandler = require("express-async-handler")
 const Product = require("../models/product") // Product = require("./models/product")
 const Category = require("../models/category") // Category = require("./models/category")
 const { body, check, validationResult } = require("express-validator")
+// const formidable = require("formidable")
+// const form = formidable({});
 
 // mongoose = require("mongoose")
 
@@ -91,7 +93,13 @@ exports.post_product_create = [
             if (typeof req.body.images === "undefined") {
                 req.body.images = []
             } else {
-                req.body.images = new Array(req.body.images)
+                // break apart and reassemble image base64 strings
+                let splits = req.body.images.split(",").filter(el => el !== "" && el !== undefined && el !== "undefined" )
+                let images = []
+                for (let n = 0; n < splits.length; n +=2 ) {
+                    images.push(splits[n] + "," + splits[n + 1])
+                }
+                req.body.images = (images)
             }
         }
         next();
@@ -116,20 +124,20 @@ exports.post_product_create = [
         .trim()
         .isNumeric()
         .escape(),
-    body("rating", "required ....")
+    body("rating", "rating ....")
         .trim()
         .isNumeric()
         .escape(),
-    body("stock", "required ....")
+    body("stock", "stock ....")
         .trim()
         .isNumeric()
         .escape(),
-    body("brand", "required ....")
+    body("brand", "brand ....")
         .trim()
         .isAlphanumeric()
         .isLength({ min: 3})
         .escape(),
-    body("category", "required ....")
+    body("category", "category ....")
         .trim()
         // .isMongoId()
         .escape(),
@@ -157,7 +165,7 @@ exports.post_product_create = [
                 categories: categories,
                 action: "create",
                 product: product,
-                errors: errors
+                errors: errors.array()
             })
         } else {
             await product.save()
@@ -208,13 +216,20 @@ exports.get_product_update = asyncHandler(async (req, res, next) => {
     })
 })
 exports.post_product_update = [
+    
     // ensure images is an array
     (req, res, next) => {
         if (!(req.body.images instanceof Array)) {
             if (typeof req.body.images === "undefined") {
                 req.body.images = []
             } else {
-                req.body.images = new Array(req.body.images)
+                // break apart and reassemble image base64 strings
+                let splits = req.body.images.split(",").filter(el => el !== "" && el !== undefined && el !== "undefined" )
+                let images = []
+                for (let n = 0; n < splits.length; n +=2 ) {
+                    images.push(splits[n] + "," + splits[n + 1])
+                }
+                req.body.images = (images)
             }
         }
         next();
@@ -234,19 +249,20 @@ exports.post_product_update = [
         .trim()
         .isNumeric()
         .escape(),
-    body("discountPercentage", "required ....")
+    body("discountPercentage", "discount is required ....")
         .trim()
         .isNumeric()
         .escape(),
     body("rating", "required ....")
         .trim()
+        .optional()
         .isNumeric()
         .escape(),
-    body("stock", "required ....")
+    body("stock", "stock is required ....")
         .trim()
         .isNumeric()
         .escape(),
-    body("brand", "required ....")
+    body("brand", "brand is required ....")
         .trim()
         .isAlphanumeric()
         .isLength({ min: 3})
@@ -285,7 +301,7 @@ exports.post_product_update = [
                 action: "update",
                 categories: categories,
                 product: product,
-                errors: errors
+                errors: errors.array()
             })
             return
         } else {

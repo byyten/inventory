@@ -1,12 +1,11 @@
 extends layout 
 
 block content 
-
     h4 #{title}
 
     //- if action === "create" || action === "update"  || action === "read" 
         //- is create
-    form(method="POST" action = "")
+    form(method="POST" action = "" id="dataform")
         .form-group 
             input#productid.form-control(type='hidden',name='productid', required='true', value=(product === undefined ? '' : product._id ) )
 
@@ -38,11 +37,30 @@ block content
                     option(value=category._id selected=(product ? category.name === product.category.name : false)) #{category.name}
 
             label(for="thumbnail") thumbnail: 
-            input#thumbnail.form-control(type="text",  name="thumbnail" value=(undefined===product ? "" : product.thumbnail)  placeholder="product thumbnail ")
+            input#thumbnail.form-control(type="hidden",  name="thumbnail" value=(undefined===product ? "" : product.thumbnail)  placeholder="product thumbnail ")
+            
+            div#div_thumbnail_image(name="div_thumbnail_image" style="max-height:100px;min-height:100px;")
+                if (undefined !== product)
+                    img#img_thumbnail(src=product.thumbnail, alt=product.title + ": " + product.description )
+            if action === "update" || action === "create"
+                label(for="thumbnail_image"  class="fileinput") add product thumbnail image: 
+                input#thumbnail_image.form-control(type="file", name="thumbnail_image" style="visibility:hidden" )
 
-            label(for="images") images: 
-            input#images.form-control(type="text", name="images" value=(undefined===product ? "" : product.images)  placeholder="product images ")
 
+            label(for="images") product images: 
+            input#images.form-control(type="hidden", name="images" value=(undefined===product ? "" : product.images)  placeholder="product images ")
+
+            div#div_product_images(name="div_product_images" style="max-height:100px;min-height:100px;")
+                if (undefined !== product)
+                    each image, idx in product.images 
+                        img.img_product(src=image, alt=product.title + " product." + idx )
+            if action === "update" || action === "create"
+                label(for="product_images" class="fileinput") add product image: 
+                input#product_images.form-control(type="file", name="product_images" style="visibility:hidden" )
+
+            //- label(for="img") view image: 
+            //- img#img(src="", name="img" width="100" height="auto" )
+        
             br
             if action !== "read"
                 button.btn.btn-primary(type="submit") #{(action === "update" ? "Modify" : action === "create" ? "Create" : "Delete" )} 
@@ -51,12 +69,34 @@ block content
         br
         hr
         p 
-            a(href=product.url + "/update") Modify 
+            if action !== "update"
+                a(href=product.url + "/update") Modify 
         p 
             a(href=product.url + "/delete") Delete
 
     if errors 
         ul 
             for error in errors 
-                li!= error.msg 
+                li=  error.msg 
+
+    script. 
+        function intercept(evt) {
+            document.querySelectorAll("input[type='file']").forEach(_inp => _inp.parentNode.removeChild(_inp))
+            
+        }        
+
+
+        function processForm(e) {
+            if (e.preventDefault) e.preventDefault();
+            /* do what you want with the form */
+            // You must return false to prevent the default form behavior
+            return false;
+        }
+
+        let form = document.getElementById('dataform');
+        if (form.attachEvent) {
+            form.attachEvent("submit", intercept);
+        } else {
+            form.addEventListener("submit", intercept);
+        }
 
