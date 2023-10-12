@@ -18,7 +18,7 @@ const mongoose = require('mongoose')
 // const mongo_uri = "mongodb://localhost:27017/inventory"
 const mongoDB = process.env.MONGODB_URI || dev_db_url;
 
-// const mongo_uri = 'mongodb+srv://myAtlasDBUser:myatlas-001@myatlasclusteredu.rzbvdyu.mongodb.net/inventory' 
+// const mongo_uri = 'mongodb+srv://****......******@myatlasclusteredu.rzbvdyu.mongodb.net/inventory' 
 async function main() {
   await mongoose.connect(mongoDB);
 }
